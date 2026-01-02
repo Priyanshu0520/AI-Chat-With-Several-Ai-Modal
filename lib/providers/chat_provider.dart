@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -13,8 +14,8 @@ import 'package:chatbotapp/models/message.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:image_picker/image_picker.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 class ChatProvider extends ChangeNotifier {
   // list of messages
@@ -32,17 +33,8 @@ class ChatProvider extends ChangeNotifier {
   // cuttent chatId
   String _currentChatId = '';
 
-  // initialize generative model
-  GenerativeModel? _model;
-
-  // itialize text model
-  GenerativeModel? _textModel;
-
-  // initialize vision model
-  GenerativeModel? _visionModel;
-
-  // current mode
-  String _modelType = 'gemini-pro';
+  // current model
+  String _modelType = 'nvidia/nemotron-3-nano-30b-a3b:free';
 
   // loading bool
   bool _isLoading = false;
@@ -57,12 +49,6 @@ class ChatProvider extends ChangeNotifier {
   int get currentIndex => _currentIndex;
 
   String get currentChatId => _currentChatId;
-
-  GenerativeModel? get model => _model;
-
-  GenerativeModel? get textModel => _textModel;
-
-  GenerativeModel? get visionModel => _visionModel;
 
   String get modelType => _modelType;
 
@@ -114,24 +100,6 @@ class ChatProvider extends ChangeNotifier {
     _modelType = newModel;
     notifyListeners();
     return newModel;
-  }
-
-  // function to set the model based on bool - isTextOnly
-  Future<void> setModel({required bool isTextOnly}) async {
-    if (isTextOnly) {
-      _model = _textModel ??
-          GenerativeModel(
-            model: setCurrentModel(newModel: 'gemini-pro'),
-            apiKey: ApiService.apiKey,
-          );
-    } else {
-      _model = _visionModel ??
-          GenerativeModel(
-            model: setCurrentModel(newModel: 'gemini-pro-vision'),
-            apiKey: ApiService.apiKey,
-          );
-    }
-    notifyListeners();
   }
 
   // set current page index
@@ -215,22 +183,19 @@ class ChatProvider extends ChangeNotifier {
 
 //?yeha samma
 
-  // send message to gemini and get the streamed reposnse
+  // send message to OpenRouter and get the streamed response
   Future<void> sentMessage({
     required String message,
     required bool isTextOnly,
   }) async {
-    // set the model
-    await setModel(isTextOnly: isTextOnly);
-
     // set loading
     setLoading(value: true);
 
     // get the chatId
     String chatId = getChatId();
 
-    // list of history messahes
-    List<Content> history = [];
+    // list of history messages
+    List<Map<String, dynamic>> history = [];
 
     // get the chat history
     history = await getHistory(chatId: chatId);
@@ -287,22 +252,11 @@ class ChatProvider extends ChangeNotifier {
     required String message,
     required String chatId,
     required bool isTextOnly,
-    required List<Content> history,
+    required List<Map<String, dynamic>> history,
     required Message userMessage,
-    required String modelMessageId, // ? Add this line
+    required String modelMessageId,
     required Box messagesBox,
   }) async {
-    // start the chat session - only send history is its text-only
-    final chatSession = _model!.startChat(
-      history: history.isEmpty || !isTextOnly ? null : history,
-    );
-
-    // get content
-    final content = await getContent(
-      message: message,
-      isTextOnly: isTextOnly,
-    );
-
     // assistant message
     final assistantMessage = userMessage.copyWith(
       messageId: modelMessageId,
@@ -315,34 +269,86 @@ class ChatProvider extends ChangeNotifier {
     _inChatMessages.add(assistantMessage);
     notifyListeners();
 
-    // wait for stream response
-    chatSession.sendMessageStream(content).asyncMap((event) {
-      return event;
-    }).listen((event) {
-      _inChatMessages
-          .firstWhere((element) =>
-              element.messageId == assistantMessage.messageId &&
-              element.role.name == Role.assistant.name)
-          .message
-          .write(event.text);
-      log('event: ${event.text}');
-      notifyListeners();
-    }, onDone: () async {
-      log('stream done');
-      // save message to hive db
-      await saveMessagesToDB(
-        chatID: chatId,
-        userMessage: userMessage,
-        assistantMessage: assistantMessage,
-        messagesBox: messagesBox,
+    try {
+      // prepare the messages for OpenRouter API
+      final messages = [
+        ...history,
+        {
+          'role': 'user',
+          'content': message,
+        }
+      ];
+
+      // make API call to OpenRouter
+      final request = http.Request(
+        'POST',
+        Uri.parse('${ApiService.baseUrl}/chat/completions'),
       );
-      // set loading to false
+
+      request.headers.addAll({
+        'Authorization': 'Bearer ${ApiService.apiKey}',
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://github.com/yourusername/chatbotapp',
+        'X-Title': 'Flutter Chat Bot App',
+      });
+
+      request.body = jsonEncode({
+        'model': _modelType,
+        'messages': messages,
+        'stream': true,
+      });
+
+      final streamedResponse = await request.send();
+
+      // listen to the stream
+      streamedResponse.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .listen(
+        (line) {
+          if (line.startsWith('data: ')) {
+            final data = line.substring(6);
+            if (data == '[DONE]') return;
+
+            try {
+              final jsonData = jsonDecode(data);
+              final content = jsonData['choices']?[0]?['delta']?['content'];
+
+              if (content != null) {
+                _inChatMessages
+                    .firstWhere((element) =>
+                        element.messageId == assistantMessage.messageId &&
+                        element.role.name == Role.assistant.name)
+                    .message
+                    .write(content);
+                notifyListeners();
+              }
+            } catch (e) {
+              log('Error parsing stream: $e');
+            }
+          }
+        },
+        onDone: () async {
+          log('stream done');
+          // save message to hive db
+          await saveMessagesToDB(
+            chatID: chatId,
+            userMessage: userMessage,
+            assistantMessage: assistantMessage,
+            messagesBox: messagesBox,
+          );
+          // set loading to false
+          setLoading(value: false);
+        },
+        onError: (error) {
+          log('error: $error');
+          setLoading(value: false);
+        },
+      );
+    } catch (e) {
+      log('Error sending message: $e');
       setLoading(value: false);
-    }).onError((erro, stackTrace) {
-      log('error: $erro');
-      // set loading
-      setLoading(value: false);
-    });
+    }
   }
 
   // save messages to hive db
@@ -376,29 +382,6 @@ class ChatProvider extends ChangeNotifier {
     await messagesBox.close();
   }
 
-  Future<Content> getContent({
-    required String message,
-    required bool isTextOnly,
-  }) async {
-    if (isTextOnly) {
-      // generate text from text-only input
-      return Content.text(message);
-    } else {
-      // generate image from text and image input
-      final imageFutures = _imagesFileList
-          ?.map((imageFile) => imageFile.readAsBytes())
-          .toList(growable: false);
-
-      final imageBytes = await Future.wait(imageFutures!);
-      final prompt = TextPart(message);
-      final imageParts = imageBytes
-          .map((bytes) => DataPart('image/jpeg', Uint8List.fromList(bytes)))
-          .toList();
-
-      return Content.multi([prompt, ...imageParts]);
-    }
-  }
-
   // get y=the imagesUrls
   List<String> getImagesUrls({
     required bool isTextOnly,
@@ -412,17 +395,16 @@ class ChatProvider extends ChangeNotifier {
     return imagesUrls;
   }
 
-  Future<List<Content>> getHistory({required String chatId}) async {
-    List<Content> history = [];
+  Future<List<Map<String, dynamic>>> getHistory({required String chatId}) async {
+    List<Map<String, dynamic>> history = [];
     if (currentChatId.isNotEmpty) {
       await setInChatMessages(chatId: chatId);
 
       for (var message in inChatMessages) {
-        if (message.role == Role.user) {
-          history.add(Content.text(message.message.toString()));
-        } else {
-          history.add(Content.model([TextPart(message.message.toString())]));
-        }
+        history.add({
+          'role': message.role == Role.user ? 'user' : 'assistant',
+          'content': message.message.toString(),
+        });
       }
     }
 

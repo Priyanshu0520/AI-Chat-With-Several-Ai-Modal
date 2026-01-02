@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:chatbotapp/providers/chat_provider.dart';
 import 'package:chatbotapp/utility/animated_dialog.dart';
 import 'package:chatbotapp/widgets/preview_images_widget.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class BottomChatField extends StatefulWidget {
   const BottomChatField({
@@ -28,6 +30,11 @@ class _BottomChatFieldState extends State<BottomChatField> {
 
   // initialize image picker
   final ImagePicker _picker = ImagePicker();
+
+  // Bronze & Brown Color Scheme
+  static const Color primaryColor = Color.fromARGB(255, 174, 128, 72);
+  static const Color secondaryColor = Color.fromARGB(255, 168, 93, 58);
+  static const Color accentColor = Color.fromARGB(255, 198, 153, 99);
 
   @override
   void dispose() {
@@ -71,33 +78,74 @@ class _BottomChatFieldState extends State<BottomChatField> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     bool hasImages = widget.chatProvider.imagesFileList != null &&
         widget.chatProvider.imagesFileList!.isNotEmpty;
 
     return Container(
-      
-      decoration: BoxDecoration(
-          gradient: const LinearGradient(
-               tileMode: TileMode.mirror,
-               transform: GradientRotation(80),
-                colors:  [Color.fromARGB(255, 255, 255, 255),Color.fromARGB(255, 255, 255, 255), ],
-                begin: Alignment.topLeft,
-                end: Alignment.topRight,
+      margin: const EdgeInsets.all(8.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [
+                        Colors.white.withOpacity(0.08),
+                        Colors.white.withOpacity(0.04)
+                      ]
+                    : [
+                        Colors.white.withOpacity(0.9),
+                        Colors.white.withOpacity(0.7)
+                      ],
               ),
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Theme.of(context).textTheme.titleLarge!.color!,
-        ),
-      ),
-      child: Column(
-        children: [
-          if (hasImages) const PreviewImagesWidget(),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  if (hasImages) {
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withOpacity(0.15)
+                    : Colors.black.withOpacity(0.08),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.3)
+                      : Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                if (hasImages) const PreviewImagesWidget(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: isDark
+                                ? [secondaryColor, accentColor]
+                                : [primaryColor, secondaryColor],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.black.withOpacity(0.4)
+                                  : Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            if (hasImages) {
                     // show the delete dialog
                     showMyAnimatedDialog(
                         context: context,
@@ -112,72 +160,92 @@ class _BottomChatFieldState extends State<BottomChatField> {
                           }
                         });
                   } else {
-                    pickImage();
-                  }
-                },
-                icon: Icon(
-                  hasImages ? CupertinoIcons.delete : CupertinoIcons.photo,
-                ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Expanded(
-                child: TextField(
-                  focusNode: textFieldFocus,
-                  controller: textController,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: widget.chatProvider.isLoading
-                      ? null
-                      : (String value) {
-                          if (value.isNotEmpty) {
-                            // send the message
-                            sendChatMessage(
-                              message: textController.text,
-                              chatProvider: widget.chatProvider,
-                              isTextOnly: hasImages ? false : true,
-                            );
-                          }
-                        },
-                  decoration: InputDecoration.collapsed(
-                    hintStyle: TextStyle(color: Colors.black),
-                      hintText: 'Enter a prompt...',
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(30),
-                      )),
-                ),
-              ),
-              GestureDetector(
-                onTap: widget.chatProvider.isLoading
-                    ? null
-                    : () {
-                        if (textController.text.isNotEmpty) {
-                          sendChatMessage(
-                            message: textController.text,
-                            chatProvider: widget.chatProvider,
-                            isTextOnly: hasImages ? false : true,
-                          );
-                        }
-                      },
-                child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.cyan,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    margin: const EdgeInsets.all(5.0),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(
-                        
-                        CupertinoIcons.arrow_up,
-                        color: Colors.white,
+                              pickImage();
+                            }
+                          },
+                          icon: Icon(
+                            hasImages ? CupertinoIcons.delete : CupertinoIcons.photo,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    )),
-              )
-            ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          focusNode: textFieldFocus,
+                          controller: textController,
+                          textInputAction: TextInputAction.send,
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 15,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                          onSubmitted: widget.chatProvider.isLoading
+                              ? null
+                              : (String value) {
+                                  if (value.isNotEmpty) {
+                                    sendChatMessage(
+                                      message: textController.text,
+                                      chatProvider: widget.chatProvider,
+                                      isTextOnly: hasImages ? false : true,
+                                    );
+                                  }
+                                },
+                          decoration: InputDecoration.collapsed(
+                            hintText: 'Type your message...',
+                            hintStyle: GoogleFonts.spaceGrotesk(
+                              fontSize: 15,
+                              color: isDark
+                                  ? Colors.white.withOpacity(0.5)
+                                  : Colors.black.withOpacity(0.4),
+                            ),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: widget.chatProvider.isLoading
+                            ? null
+                            : () {
+                                if (textController.text.isNotEmpty) {
+                                  sendChatMessage(
+                                    message: textController.text,
+                                    chatProvider: widget.chatProvider,
+                                    isTextOnly: hasImages ? false : true,
+                                  );
+                                }
+                              },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: isDark
+                                  ? [secondaryColor, accentColor]
+                                  : [primaryColor, secondaryColor],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.black.withOpacity(0.4)
+                                    : Colors.black.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(12.0),
+                          child: const Icon(
+                            Icons.arrow_upward_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
