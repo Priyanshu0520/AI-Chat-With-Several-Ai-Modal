@@ -1,10 +1,8 @@
 # 🤖 AI Chat - Multi-Model AI Assistant
 
-<div align="center">
-
-![App Banner](assets/images/Simulator%20Screenshot%20-%20iPhone%2017%20-%202026-01-02%20at%2015.56.45.png)
-
 **A beautiful, feature-rich AI chat application built with Flutter, supporting multiple AI models with a stunning bronze & brown themed UI.**
+
+<div align="center">
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.4.1+-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.4.1+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
@@ -45,65 +43,20 @@
 
 ## 📸 Screenshots
 
-<div align="center">
-
-<table>
-  <tr>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.56.45.png" width="200" alt="Screenshot 1"><br>
-      <b>Dashboard</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.56.59.png" width="200" alt="Screenshot 2"><br>
-      <b>Profile</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.03.png" width="200" alt="Screenshot 3"><br>
-      <b>Settings</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.09.png" width="200" alt="Screenshot 4"><br>
-      <b>Chat Screen</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.17.png" width="200" alt="Screenshot 5"><br>
-      <b>Model Selection</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.25.png" width="200" alt="Screenshot 6"><br>
-      <b>Chat Interface</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.29.png" width="200" alt="Screenshot 7"><br>
-      <b>Chat History</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.35.png" width="200" alt="Screenshot 8"><br>
-      <b>Chat View</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.38.png" width="200" alt="Screenshot 9"><br>
-      <b>Message Input</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.41.png" width="200" alt="Screenshot 10"><br>
-      <b>Image Picker</b>
-    </td>
-    <td align="center">
-      <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.44.png" width="200" alt="Screenshot 11"><br>
-      <b>Delete Chat</b>
-    </td>
-    <td align="center">
-      <!-- Empty cell -->
-    </td>
-  </tr>
-</table>
-
-</div>
+<p align="center">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.56.45.png" width="140" alt="Dashboard">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.56.59.png" width="140" alt="Profile">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.03.png" width="140" alt="Settings">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.09.png" width="140" alt="Chat">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.17.png" width="140" alt="Model Selection">
+  <br>
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.25.png" width="140" alt="Chat Interface">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.29.png" width="140" alt="History">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.35.png" width="140" alt="Chat View">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.38.png" width="140" alt="Input">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.41.png" width="140" alt="Image">
+  <img src="assets/images/Simulator Screenshot - iPhone 17 - 2026-01-02 at 15.57.44.png" width="140" alt="Delete">
+</p>
 
 ---
 
