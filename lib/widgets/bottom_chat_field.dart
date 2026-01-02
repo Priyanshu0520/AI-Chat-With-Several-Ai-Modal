@@ -22,16 +22,9 @@ class BottomChatField extends StatefulWidget {
 }
 
 class _BottomChatFieldState extends State<BottomChatField> {
-  // controller for the input field
   final TextEditingController textController = TextEditingController();
-
-  // focus node for the input field
   final FocusNode textFieldFocus = FocusNode();
-
-  // initialize image picker
   final ImagePicker _picker = ImagePicker();
-
-  // Bronze & Brown Color Scheme
   static const Color primaryColor = Color.fromARGB(255, 174, 128, 72);
   static const Color secondaryColor = Color.fromARGB(255, 168, 93, 58);
   static const Color accentColor = Color.fromARGB(255, 198, 153, 99);
@@ -62,7 +55,6 @@ class _BottomChatFieldState extends State<BottomChatField> {
     }
   }
 
-  // pick an image
   void pickImage() async {
     try {
       final pickedImages = await _picker.pickMultiImage(
@@ -76,10 +68,118 @@ class _BottomChatFieldState extends State<BottomChatField> {
     }
   }
 
+  BoxDecoration _buildButtonDecoration(bool isDark) {
+    return BoxDecoration(
+      gradient: LinearGradient(
+        colors: isDark
+            ? [secondaryColor, accentColor]
+            : [primaryColor, secondaryColor],
+      ),
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: [
+        BoxShadow(
+          color: isDark
+              ? const Color.fromRGBO(0, 0, 0, 0.4)
+              : const Color.fromRGBO(0, 0, 0, 0.2),
+          blurRadius: 8,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImagePickerButton(bool isDark, bool hasImages) {
+    return Container(
+      decoration: _buildButtonDecoration(isDark),
+      child: IconButton(
+        onPressed: () {
+          if (hasImages) {
+            showMyAnimatedDialog(
+              context: context,
+              title: 'Delete Images',
+              content: 'Are you sure you want to delete the images?',
+              actionText: 'Delete',
+              onActionPressed: (value) {
+                if (value) {
+                  widget.chatProvider.setImagesFileList(listValue: []);
+                }
+              },
+            );
+          } else {
+            pickImage();
+          }
+        },
+        icon: Icon(
+          hasImages ? CupertinoIcons.delete : CupertinoIcons.photo,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(bool isDark, bool hasImages) {
+    return Expanded(
+      child: TextField(
+        focusNode: textFieldFocus,
+        controller: textController,
+        textInputAction: TextInputAction.send,
+        style: GoogleFonts.spaceGrotesk(
+          fontSize: 15,
+          color: isDark ? Colors.white : Colors.black87,
+        ),
+        onSubmitted: widget.chatProvider.isLoading
+            ? null
+            : (String value) {
+                if (value.isNotEmpty) {
+                  sendChatMessage(
+                    message: textController.text,
+                    chatProvider: widget.chatProvider,
+                    isTextOnly: !hasImages,
+                  );
+                }
+              },
+        decoration: InputDecoration.collapsed(
+          hintText: 'Type your message...',
+          hintStyle: GoogleFonts.spaceGrotesk(
+            fontSize: 15,
+            color: isDark
+                ? const Color.fromRGBO(255, 255, 255, 0.5)
+                : const Color.fromRGBO(0, 0, 0, 0.4),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSendButton(bool isDark, bool hasImages) {
+    return GestureDetector(
+      onTap: widget.chatProvider.isLoading
+          ? null
+          : () {
+              if (textController.text.isNotEmpty) {
+                sendChatMessage(
+                  message: textController.text,
+                  chatProvider: widget.chatProvider,
+                  isTextOnly: !hasImages,
+                );
+              }
+            },
+      child: Container(
+        decoration: _buildButtonDecoration(isDark),
+        padding: const EdgeInsets.all(12.0),
+        child: const Icon(
+          Icons.arrow_upward_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    bool hasImages = widget.chatProvider.imagesFileList != null &&
+    final hasImages = widget.chatProvider.imagesFileList != null &&
         widget.chatProvider.imagesFileList!.isNotEmpty;
 
     return Container(
@@ -93,26 +193,26 @@ class _BottomChatFieldState extends State<BottomChatField> {
               gradient: LinearGradient(
                 colors: isDark
                     ? [
-                        Colors.white.withOpacity(0.08),
-                        Colors.white.withOpacity(0.04)
+                        const Color.fromRGBO(255, 255, 255, 0.08),
+                        const Color.fromRGBO(255, 255, 255, 0.04),
                       ]
                     : [
-                        Colors.white.withOpacity(0.9),
-                        Colors.white.withOpacity(0.7)
+                        const Color.fromRGBO(255, 255, 255, 0.9),
+                        const Color.fromRGBO(255, 255, 255, 0.7),
                       ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: isDark
-                    ? Colors.white.withOpacity(0.15)
-                    : Colors.black.withOpacity(0.08),
+                    ? const Color.fromRGBO(255, 255, 255, 0.15)
+                    : const Color.fromRGBO(0, 0, 0, 0.08),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
                   color: isDark
-                      ? Colors.black.withOpacity(0.3)
-                      : Colors.black.withOpacity(0.1),
+                      ? const Color.fromRGBO(0, 0, 0, 0.3)
+                      : const Color.fromRGBO(0, 0, 0, 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -122,123 +222,16 @@ class _BottomChatFieldState extends State<BottomChatField> {
               children: [
                 if (hasImages) const PreviewImagesWidget(),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: isDark
-                                ? [secondaryColor, accentColor]
-                                : [primaryColor, secondaryColor],
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? Colors.black.withOpacity(0.4)
-                                  : Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            if (hasImages) {
-                    // show the delete dialog
-                    showMyAnimatedDialog(
-                        context: context,
-                        title: 'Delete Images',
-                        content: 'Are you sure you want to delete the images?',
-                        actionText: 'Delete',
-                        onActionPressed: (value) {
-                          if (value) {
-                            widget.chatProvider.setImagesFileList(
-                              listValue: [],
-                            );
-                          }
-                        });
-                  } else {
-                              pickImage();
-                            }
-                          },
-                          icon: Icon(
-                            hasImages ? CupertinoIcons.delete : CupertinoIcons.photo,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      _buildImagePickerButton(isDark, hasImages),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          focusNode: textFieldFocus,
-                          controller: textController,
-                          textInputAction: TextInputAction.send,
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 15,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                          onSubmitted: widget.chatProvider.isLoading
-                              ? null
-                              : (String value) {
-                                  if (value.isNotEmpty) {
-                                    sendChatMessage(
-                                      message: textController.text,
-                                      chatProvider: widget.chatProvider,
-                                      isTextOnly: hasImages ? false : true,
-                                    );
-                                  }
-                                },
-                          decoration: InputDecoration.collapsed(
-                            hintText: 'Type your message...',
-                            hintStyle: GoogleFonts.spaceGrotesk(
-                              fontSize: 15,
-                              color: isDark
-                                  ? Colors.white.withOpacity(0.5)
-                                  : Colors.black.withOpacity(0.4),
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: widget.chatProvider.isLoading
-                            ? null
-                            : () {
-                                if (textController.text.isNotEmpty) {
-                                  sendChatMessage(
-                                    message: textController.text,
-                                    chatProvider: widget.chatProvider,
-                                    isTextOnly: hasImages ? false : true,
-                                  );
-                                }
-                              },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                  ? [secondaryColor, accentColor]
-                                  : [primaryColor, secondaryColor],
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isDark
-                                    ? Colors.black.withOpacity(0.4)
-                                    : Colors.black.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.all(12.0),
-                          child: const Icon(
-                            Icons.arrow_upward_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
+                      _buildTextField(isDark, hasImages),
+                      _buildSendButton(isDark, hasImages),
                     ],
                   ),
                 ),

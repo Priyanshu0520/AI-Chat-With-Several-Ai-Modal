@@ -10,20 +10,16 @@ class SettingsProvider extends ChangeNotifier {
 
   bool get shouldSpeak => _shouldSpeak;
 
-  // get the saved settings from box
   void getSavedSettings() {
     final settingsBox = Boxes.getSettings();
 
-    // check is the settings box is open
     if (settingsBox.isNotEmpty) {
-      // get the settings
       final settings = settingsBox.getAt(0);
       _isDarkMode = settings!.isDarkTheme;
       _shouldSpeak = settings.shouldSpeak;
     }
   }
 
-  // toggle the dark mode
   void toggleDarkMode({
     required bool value,
     Settings? settings,
@@ -32,9 +28,7 @@ class SettingsProvider extends ChangeNotifier {
       settings.isDarkTheme = value;
       settings.save();
     } else {
-      // get the settings box
       final settingsBox = Boxes.getSettings();
-      // save the settings
       settingsBox.put(
           0, Settings(isDarkTheme: value, shouldSpeak: shouldSpeak));
     }
@@ -43,7 +37,6 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // toggle the speak
   void toggleSpeak({
     required bool value,
     Settings? settings,
@@ -52,9 +45,7 @@ class SettingsProvider extends ChangeNotifier {
       settings.shouldSpeak = value;
       settings.save();
     } else {
-      // get the settings box
       final settingsBox = Boxes.getSettings();
-      // save the settings
       settingsBox.put(0, Settings(isDarkTheme: isDarkMode, shouldSpeak: value));
     }
 
