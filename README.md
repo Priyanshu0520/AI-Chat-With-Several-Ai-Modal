@@ -21,7 +21,6 @@
 - **Image Support** - Send images along with your messages
 - **Profile Management** - Customize your name and profile picture
 - **Dark/Light Mode** - Elegant glass morphism design in both themes
-- **Firebase Authentication** - Google Sign-In integration
 
 ### 🚀 Supported AI Models
 1. **DeepSeek R1T2 Chimera** - `tngtech/deepseek-r1t2-chimera:free`
@@ -77,10 +76,6 @@
 - **Path Provider** - Local file system access
 - **Image Picker** - Gallery/camera integration
 
-### UI/UX Libraries
-- **Flutter Markdown** - Rich text rendering
-- **Flutter SpinKit** - Loading animations
-- **Dart UI** - Glass morphism effects (BackdropFilter)
 
 ---
 
@@ -213,7 +208,7 @@ Hive is used for local data persistence:
 - Changes sync across all screens
 
 ### ⚙️ Settings
-- Toggle AI voice responses
+- Toggle AI voice responses(Working)
 - Switch between dark/light themes
 - Model selection with visual feedback
 
