@@ -47,39 +47,33 @@
 
 <div align="center">
 
-### App Demo
-<img src="assets/screenshots/app_demo.png" width="700" alt="App Demo">
-
----
-
-### Application Screens
-
 <table>
   <tr>
     <td align="center">
-      <img src="assets/screenshots/screenshot_1.png" width="250" alt="Dashboard"><br>
-      <b>Dashboard</b>
+      <img src="assets/screenshots/app_demo.png" width="250" alt="App Demo"><br>
+      <b>App Demo</b>
     </td>
     <td align="center">
-      <img src="assets/screenshots/screenshot_2.png" width="250" alt="Model Selection"><br>
-      <b>Model Selection</b>
+      <img src="assets/screenshots/screenshot_1.png" width="250" alt="Screenshot 1"><br>
+      <b>Screenshot 1</b>
     </td>
     <td align="center">
-      <img src="assets/screenshots/screenshot_3.png" width="250" alt="Chat Screen"><br>
-      <b>Chat Interface</b>
+      <img src="assets/screenshots/screenshot_2.png" width="250" alt="Screenshot 2"><br>
+      <b>Screenshot 2</b>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="assets/screenshots/screenshot_4.png" width="250" alt="Profile Screen"><br>
-      <b>Profile Screen</b>
+      <img src="assets/screenshots/screenshot_3.png" width="250" alt="Screenshot 3"><br>
+      <b>Screenshot 3</b>
     </td>
     <td align="center">
-      <img src="assets/screenshots/screenshot_5.png" width="250" alt="Settings"><br>
-      <b>Settings</b>
+      <img src="assets/screenshots/screenshot_4.png" width="250" alt="Screenshot 4"><br>
+      <b>Screenshot 4</b>
     </td>
     <td align="center">
-      <!-- Empty cell for symmetry -->
+      <img src="assets/screenshots/screenshot_5.png" width="250" alt="Screenshot 5"><br>
+      <b>Screenshot 5</b>
     </td>
   </tr>
 </table>
